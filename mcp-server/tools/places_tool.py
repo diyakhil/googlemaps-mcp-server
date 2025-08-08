@@ -1,6 +1,5 @@
 # tools/places_tool.py
-def get_nearby_places(latitude: float, longitude: float) -> str:
-    """Return nearby places given latitude and longitude"""
+def get_nearby_places(latitude: float, longitude: float, type:str = None) -> str:
     import os
     import requests
     from dotenv import load_dotenv
@@ -30,6 +29,10 @@ def get_nearby_places(latitude: float, longitude: float) -> str:
         },
         "maxResultCount": 3
     }
+
+    # Only include this field if type is passed
+    if type:
+        body["includedTypes"] = [type]
 
     try:
         response = requests.post(url, headers=headers, json=body)

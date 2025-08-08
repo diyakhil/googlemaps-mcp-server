@@ -53,10 +53,11 @@ def get_leave_history(employee_id: str) -> str:
         return f"Leave history for {employee_id}: {history}"
     return "Employee ID not found."
 
-# Tool: Check first nearby location
+# Tool: Check first nearby location, valid included types are here https://developers.google.com/maps/documentation/places/web-service/legacy/supported_types
 @mcp.tool()
-def get_nearby_places_wrapper(latitude: float, longitude: float) -> str:
-    return get_nearby_places(latitude, longitude)
+def get_nearby_places_wrapper(latitude: float, longitude: float, type:str = None) -> str:
+    """Return nearby places given latitude, longitude, and specific type of location"""
+    return get_nearby_places(latitude, longitude, type)
 
 # Resource: Greeting
 @mcp.resource("greeting://{name}")
