@@ -36,3 +36,22 @@ def maps_place(place_id: str) -> dict :
         return result
     except Exception as e: 
         return f"Unhandled exception in place tool: {e}"
+
+def maps_get_directions(origin: str, destination: str, mode='driving', alternatives=True) -> dict: 
+    try: 
+        result = gmaps.directions(origin=origin, destination=destination, mode=mode, alternatives=alternatives)
+        steps = result[0]["legs"][0]["steps"]
+        if not result: 
+            return "No results found for the provided origin and destination"
+        return ". ".join([step["html_instructions"] for step in steps])
+    except Exception as e: 
+        return f"Unhandled exception in get directions tool: {e}"
+
+# def maps_places(latitude: float, longitude: float, radius: int) -> dict: 
+#     try: 
+#         result = gmaps.places(location=(latitude, longitude)); 
+#         if not result: 
+#             return "No Google Maps Place found for the given lat long"
+#         return result["place_id"]
+#     except Exception as e: 
+#         return f"Unhandled exception in places tool {e}"

@@ -2,7 +2,7 @@
 from mcp.server.fastmcp import FastMCP
 from typing import List
 from tools.places_tool import get_nearby_places
-from tools.maps_geocode_tool import maps_geocode, maps_reverse_geocode, maps_place
+from tools.maps_geocode_tool import maps_geocode, maps_reverse_geocode, maps_place, maps_get_directions#, maps_places
 
 # In-memory mock database with 20 leave days to start
 employee_leaves = {
@@ -74,6 +74,19 @@ def maps_reverse_geocode_wrapper(latitude: float, longitude: float) -> dict:
 def maps_place_wrapper(place_id: str) -> dict:
     """ Returns metadata about a place given a placeId """
     return maps_place(place_id)
+
+@mcp.tool()
+def maps_get_directions_wrapper(origin: str, destination: str) -> dict:
+    """ Returns directions from origin to destination """
+    return maps_get_directions(origin, destination)
+
+# @mcp.tool()
+# def get_place_photo(latitude: float, longitude: float) -> dict: 
+#     """ Returns the place photo for a passed in given location """
+#     # address = maps_reverse_geocode_wrapper(latitude, longitude)
+#     place_id = maps_places(latitude, longitude, 1)
+#     return place_id
+#     # return maps_place(place_id)
 
 
 # Resource: Greeting
