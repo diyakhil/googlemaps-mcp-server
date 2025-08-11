@@ -16,7 +16,7 @@ def maps_geocode(address: str) -> dict:
     except Exception as e: 
         return f"Unhandled exception in geocode tool: {e}"
 
-def maps_reverse_geocode(latitude: float, longitude: float,) -> dict: 
+def maps_reverse_geocode(latitude: float, longitude: float) -> dict: 
     try: 
         result = gmaps.reverse_geocode((latitude, longitude))
         if not result: 
@@ -25,3 +25,14 @@ def maps_reverse_geocode(latitude: float, longitude: float,) -> dict:
     except Exception as e: 
         return f"Unhandled exception in reverse geocode tool: {e}"
 
+def maps_place(place_id: str) -> dict : 
+    #An example place id for Qahwah House: ChIJk4hAbgARsYkRVgYFTwm3Iw8
+    try: 
+        #FieldsMask is necessary for different resposne fields to be returned 
+        result = gmaps.place(place_id = place_id, fields=[ 
+            "name","website"])
+        if not result: 
+            return "No results found for the provided placeId"
+        return result
+    except Exception as e: 
+        return f"Unhandled exception in place tool: {e}"
