@@ -3,6 +3,7 @@ from mcp.server.fastmcp import FastMCP
 from typing import List
 from tools.places_tool import get_nearby_places
 from tools.maps_geocode_tool import maps_geocode, maps_reverse_geocode, maps_place, maps_get_directions#, maps_places
+from tools.websearch import web_search
 
 # In-memory mock database with 20 leave days to start
 employee_leaves = {
@@ -88,6 +89,14 @@ def maps_get_directions_wrapper(origin: str, destination: str) -> dict:
 #     return place_id
 #     # return maps_place(place_id)
 
+
+@mcp.tool()
+def handle_unknown(query: str) -> str:
+    """
+    Handle queries that don't match any known tool.
+    Falls back to web search.
+    """
+    return web_search(query)
 
 # Resource: Greeting
 @mcp.resource("greeting://{name}")
