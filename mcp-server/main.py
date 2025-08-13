@@ -1,5 +1,5 @@
 
-from mcp.server.fastmcp import FastMCP
+from fastmcp import FastMCP
 from typing import List
 from tools.places_tool import get_nearby_places
 from tools.maps_geocode_tool import maps_geocode, maps_reverse_geocode, maps_place, maps_get_directions#, maps_places
