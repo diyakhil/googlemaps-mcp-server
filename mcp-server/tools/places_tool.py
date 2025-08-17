@@ -43,10 +43,20 @@ def get_nearby_places(latitude: float, longitude: float, type:str = None) -> str
         if not places:
             return "No places found nearby."
 
-        first = places[0]
-        name = first.get("displayName", {}).get("text", "Unnamed place")
-        address = first.get("formattedAddress", "No address")
-        return f"One nearby place: {name} at {address}"
+        summaries = []
+        for p in places:
+            name = p.get("displayName", {}).get("text", "Unnamed place")
+            address = p.get("formattedAddress", "no address available")
+            rating = p.get("rating")
+            if rating:
+                summaries.append(f"{name}, rated {rating} stars, at {address}")
+            else:
+                summaries.append(f"{name} at {address}")
+
+        if len(summaries) == 1:
+            return f"I found one nearby place: {summaries[0]}."
+        else:
+            return "Here are some nearby places: " + "; ".join(summaries)
 
     except Exception as e:
         return f"Unhandled exception: {e}"

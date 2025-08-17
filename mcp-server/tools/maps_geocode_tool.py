@@ -47,11 +47,15 @@ def maps_get_directions(origin: str, destination: str, mode='driving', alternati
     except Exception as e: 
         return f"Unhandled exception in get directions tool: {e}"
 
-# def maps_places(latitude: float, longitude: float, radius: int) -> dict: 
-#     try: 
-#         result = gmaps.places(location=(latitude, longitude)); 
-#         if not result: 
-#             return "No Google Maps Place found for the given lat long"
-#         return result["place_id"]
-#     except Exception as e: 
-#         return f"Unhandled exception in places tool {e}"
+def maps_travel_time(origin: str, destination: str, mode='driving') -> dict:
+    try:
+        result = gmaps.distance_matrix(origins=[origin], destinations=[destination], mode=mode)
+        if not result.get("rows"):
+            return "No results found for the provided origin and destination."
+        element = result["rows"][0]["elements"][0]
+        return {
+            "distance": element["distance"]["text"],
+            "duration": element["duration"]["text"]
+        }
+    except Exception as e:
+        return f"Unhandled exception in travel_time tool: {e}"
