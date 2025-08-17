@@ -43,7 +43,8 @@ def maps_get_directions(origin: str, destination: str, mode='driving', alternati
         steps = result[0]["legs"][0]["steps"]
         if not result: 
             return "No results found for the provided origin and destination"
-        return ". ".join([step["html_instructions"] for step in steps])
+        instructions = ". ".join([step["html_instructions"] for step in steps])
+        return {"directions": instructions}
     except Exception as e: 
         return f"Unhandled exception in get directions tool: {e}"
 
