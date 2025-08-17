@@ -1,12 +1,11 @@
 
 from fastmcp import FastMCP
-from typing import List
 from tools.places_tool import get_nearby_places
 from tools.maps_geocode_tool import maps_geocode, maps_reverse_geocode, maps_place, maps_get_directions, maps_travel_time
 from tools.websearch import web_search
 
 # Create MCP server
-mcp = FastMCP("LeaveManager1")
+mcp = FastMCP("DriverAssistant")
 
 # Tool: Check first nearby location, valid included types are here https://developers.google.com/maps/documentation/places/web-service/legacy/supported_types
 @mcp.tool()
