@@ -62,4 +62,4 @@ def get_greeting(name: str) -> str:
     return f"Hello, {name}! How can I assist you with leave management today?"
 
 if __name__ == "__main__":
-    mcp.run()
+    mcp.run(transport="stdio")

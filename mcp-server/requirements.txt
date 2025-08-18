@@ -1,2 +1,5 @@
-mcp_request
 python-dotenv
+langchain-groq
+langchain-mcp-adapters
+mcp
+langgraph
