@@ -4,6 +4,7 @@ from langchain_groq import ChatGroq
 import os
 from dotenv import load_dotenv
 import asyncio
+from debug import print_tools_used, print_ai_metadata
 
 load_dotenv()
 os.environ["GROQ_API_KEY"]=os.getenv("GROQ_API_KEY")
@@ -51,6 +52,9 @@ async def main():
         response = await agent.ainvoke({"messages": messages})
         agent_reply = response["messages"][-1].content
         print("Assistant:", agent_reply)
+        # print("Raw Response Was", response) #Debugging purposes to see token usage 
+        print_tools_used(response)
+        print_ai_metadata(response)
         messages.append({"role": "assistant", "content": agent_reply})
 
 asyncio.run(main())
