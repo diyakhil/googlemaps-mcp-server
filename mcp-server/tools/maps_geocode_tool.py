@@ -42,11 +42,11 @@ def maps_get_directions(origin: str, destination: str, mode='driving', alternati
         result = gmaps.directions(origin=origin, destination=destination, mode=mode, alternatives=alternatives)
         steps = result[0]["legs"][0]["steps"]
         if not result: 
-            return "No results found for the provided origin and destination"
+            return {"No results found for the provided origin and destination"}
         instructions = ". ".join([step["html_instructions"] for step in steps])
         return {"directions": instructions}
     except Exception as e: 
-        return f"Unhandled exception in get directions tool: {e}"
+        return {f"Unhandled exception in get directions tool: {e}"}
 
 def maps_travel_time(origin: str, destination: str, mode='driving') -> dict:
     try:
