@@ -59,7 +59,7 @@ def handle_unknown(query: str) -> str:
 @mcp.resource("greeting://{name}")
 def get_greeting(name: str) -> str:
     """Get a personalized greeting"""
-    return f"Hello, {name}! How can I assist you with leave management today?"
+    return f"Hello, {name}! How can I help as a driver's assitant today?"
 
 if __name__ == "__main__":
     mcp.run(transport="stdio")

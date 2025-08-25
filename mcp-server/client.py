@@ -1,11 +1,13 @@
 from langchain_mcp_adapters.client import MultiServerMCPClient
 from langgraph.prebuilt import create_react_agent
 from langchain_groq import ChatGroq
-
+import os
 from dotenv import load_dotenv
-load_dotenv()
-
 import asyncio
+
+load_dotenv()
+os.environ["GROQ_API_KEY"]=os.getenv("GROQ_API_KEY")
+
 
 async def main():
     client=MultiServerMCPClient(
@@ -19,9 +21,6 @@ async def main():
 
         }
     )
-
-    import os
-    os.environ["GROQ_API_KEY"]=os.getenv("GROQ_API_KEY")
 
     tools=await client.get_tools()
     model=ChatGroq(model="qwen/qwen3-32b")
