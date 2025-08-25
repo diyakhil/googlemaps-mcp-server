@@ -30,11 +30,28 @@ async def main():
         model,tools
     )
 
-    response = await agent.ainvoke(
-        {"messages": [{"role": "user", "content": "what is the time to get from qahwah house richmond to grit coffee scott's addition"}]}
-    )
+    # Commenting out to show message array approach to memory 
+    # response = await agent.ainvoke(
+    #     {"messages": [{"role": "user", "content": "what is the time to get from qahwah house richmond to grit coffee scott's addition"}]}
+    # )
+    # print("Response:", response['messages'][-1].content)
 
-    print("Response:", response['messages'][-1].content)
+    # Maintain a global array for messages to maintain state 
+    messages = []
 
+    print("Chat is ready. Type 'exit' or 'quit' to stop.\n")
+
+    # Continuous chat sequence until key word is given 
+    while True:
+        user_input = input("You: ")
+        if user_input.lower() in {"exit", "quit"}:
+            print("Ending chat. Goodbye!")
+            break
+
+        messages.append({"role": "user", "content": user_input})
+        response = await agent.ainvoke({"messages": messages})
+        agent_reply = response["messages"][-1].content
+        print("Assistant:", agent_reply)
+        messages.append({"role": "assistant", "content": agent_reply})
 
 asyncio.run(main())
