@@ -24,7 +24,11 @@ async def main():
     )
 
     tools=await client.get_tools()
-    model=ChatGroq(model="qwen/qwen3-32b")
+    model=ChatGroq(
+        model="qwen/qwen3-32b",
+        max_tokens=1024, 
+        temperature=0.1 
+        )
 
     agent=create_react_agent(
         model,tools
@@ -53,8 +57,8 @@ async def main():
         agent_reply = response["messages"][-1].content
         print("Assistant:", agent_reply)
         # print("Raw Response Was", response) #Debugging purposes to see token usage 
-        print_tools_used(response)
-        print_ai_metadata(response)
+        # print_tools_used(response)
+        # print_ai_metadata(response)
         messages.append({"role": "assistant", "content": agent_reply})
 
 asyncio.run(main())
