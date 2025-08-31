@@ -4,6 +4,7 @@ from langchain_groq import ChatGroq
 import os
 from dotenv import load_dotenv
 import asyncio
+from fastapi import FastAPI
 from debug import print_tools_used, print_ai_metadata
 
 load_dotenv()
@@ -33,12 +34,6 @@ async def main():
     agent=create_react_agent(
         model,tools
     )
-
-    # Commenting out to show message array approach to memory 
-    # response = await agent.ainvoke(
-    #     {"messages": [{"role": "user", "content": "what is the time to get from qahwah house richmond to grit coffee scott's addition"}]}
-    # )
-    # print("Response:", response['messages'][-1].content)
 
     # Maintain a global array for messages to maintain state 
     messages = []
