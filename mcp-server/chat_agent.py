@@ -29,7 +29,7 @@ class ChatAgent:
             {
                 "driverassistant": {
                     "command": "python",
-                    "args": ["main.py"],
+                    "args": ["mcp_server.py"],
                     "transport": "stdio",
                 }
             }
@@ -122,7 +122,7 @@ async def main():
     
     # Test conversation
     test_messages = [
-        "Thank you"
+        "how long is the drive from qahwah house rva to grit coffee rva?"
     ]
     
     for message in test_messages:
