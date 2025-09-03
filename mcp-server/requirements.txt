@@ -1,5 +1,13 @@
+fastapi
+uvicorn
 python-dotenv
+redis
+httpx
+langchain
 langchain-groq
-langchain-mcp-adapters
-mcp
 langgraph
+langchain-mcp-adapters
+fastmcp
+googlemaps
+streamlit
+httpx
