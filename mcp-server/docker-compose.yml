@@ -1,0 +1,39 @@
+version: "3.9"
+
+services:
+  redis:
+    image: redis:latest
+    container_name: redis
+    ports:
+      - "6379:6379"
+
+  app:
+    build: .
+    container_name: chat_app
+    ports:
+      - "8000:8000"
+    depends_on:
+      - redis
+    environment:
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      GROQ_API_KEY: ${GROQ_API_KEY}
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+
+  streamlit:
+    build:
+      context: .
+      dockerfile: Dockerfile.streamlit 
+    container_name: streamlit_ui
+    ports:
+      - "8501:8501"
+    depends_on:
+      - app
+    environment:
+      STREAMLIT_SERVER_PORT: 8501
+    volumes:
+      - .:/app
+      - streamlit_data:/root/.streamlit  # Fix: add writable volume for Streamlit config
+
+volumes:
+  streamlit_data:
