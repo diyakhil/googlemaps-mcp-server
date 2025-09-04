@@ -17,7 +17,7 @@ class ChatAgent:
     #redis_db=0 selects database number 0, which is the default database --> redis comes with 16 dbs by default
     def __init__(self, redis_host: str = "localhost", redis_port: int = 6379, redis_db: int = 0):
         """Initialize the ChatAgent with Redis connection for memory management."""
-        redis_host = os.getenv("REDIS_HOST", "localhost") #adding first option for Docker
+        redis_host = os.getenv("REDIS_HOST") #adding first option for Docker
         redis_port = int(os.getenv("REDIS_PORT", 6379))
         self.redis_client = redis.Redis(host=redis_host, port=redis_port, db=redis_db, decode_responses=True)
         self.mcp_client = None

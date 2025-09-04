@@ -13,7 +13,7 @@ if audio_file is not None:
     with st.spinner("Sending to assistant..."):
         try:
             files = {"audio": (audio_file.name, audio_file, audio_file.type)}
-            response = httpx.post("http://api:8000/transcribe-audio", files=files)  #'api' is the FastAPI container name in Docker
+            response = httpx.post("http://app:8000/transcribe-audio", files=files, timeout=60.0)  #'app' is the FastAPI container name in Docker
             if response.status_code == 200:
                 st.success("Assistant says:")
                 st.markdown(f"> {response.text}")
