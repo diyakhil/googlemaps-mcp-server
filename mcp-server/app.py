@@ -2,6 +2,7 @@ import streamlit as st
 import httpx
 from audio_recorder_streamlit import audio_recorder
 import io
+from text_to_speech import speak_text 
 
 st.set_page_config(page_title="Driver Assistant Chat", layout="centered")
 st.title("Driver Assistant Chat")
@@ -34,6 +35,9 @@ with tab1:
                     if response.status_code == 200:
                         st.success("Assistant says:")
                         st.markdown(f"> {response.text}")
+
+                        # Convert response text to speech
+                        speak_text(response.text)
                     else:
                         st.error(f"Server returned an error: {response.text}")
                 except Exception as e:
@@ -51,6 +55,9 @@ with tab2:
                 if response.status_code == 200:
                     st.success("Assistant says:")
                     st.markdown(f"> {response.text}")
+                    
+                     # Convert response text to speech
+                    speak_text(response.text)
                 else:
                     st.error(f"Server returned an error: {response.text}")
             except Exception as e:
