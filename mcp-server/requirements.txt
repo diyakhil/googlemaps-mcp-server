@@ -14,3 +14,4 @@ httpx
 audio-recorder-streamlit
 gtts 
 beautifulsoup4
+streamlit_geolocation

@@ -1,8 +1,9 @@
-from fastapi import FastAPI, UploadFile, File, HTTPException
+from fastapi import FastAPI, UploadFile, File, HTTPException, Header
 import httpx
 import os
 from pathlib import Path
 from chat_agent import process_chat_message
+from typing import Optional
 
 app = FastAPI()
 
@@ -15,8 +16,24 @@ MAX_FILE_SIZE = 25 * 1024 * 1024  # 25MB
 OPENAI_TRANSCRIPTION_URL = "https://api.openai.com/v1/audio/transcriptions"
 
 @app.post("/transcribe-audio")
-async def transcribe_audio(audio: UploadFile = File(...)):
-    # Validate file extension
+async def transcribe_audio(audio: UploadFile = File(...), latitude: Optional[str] = Header(None, alias="X-User-Lat"),
+    longitude: Optional[str] = Header(None, alias="X-User-Lon")):
+
+    print("=== DEBUG INFO ===")
+    print("Received latitude:", latitude)
+    print("Received longitude:", longitude)
+    print("Audio filename:", audio.filename)
+    print("Audio content type:", audio.content_type)
+    print("==================")
+
+    if latitude and longitude:
+        location_info = f" (Current location: lat={latitude}, lon={longitude})"
+    else:
+        location_info = " (Location not available)"
+        print("Warning: Location data not provided")
+
+    print(location_info)
+
     if not audio.filename:
         raise HTTPException(status_code=400, detail="No filename provided")
     
@@ -29,7 +46,6 @@ async def transcribe_audio(audio: UploadFile = File(...)):
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Error reading file: {str(e)}")
     
-    # Check file size
     if len(audio_content) > MAX_FILE_SIZE:
         raise HTTPException(
             status_code=413, 
@@ -71,9 +87,15 @@ async def transcribe_audio(audio: UploadFile = File(...)):
         transcription_data = response.json()
         transcribed_text = transcription_data.get("text", "")
 
+        #transcribed_text += f" (Current location: lat={latitude}, lon={longitude})"
+
+        print("Transcribed text:", transcribed_text)
+
         agent_response = await process_chat_message(transcribed_text, "session_id")
 
-        return agent_response["response"]  #  #returning the response from the agent
+        print("Agent response:", agent_response['response'])
+
+        return agent_response["response"]
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Unexpected error: {str(e)}")

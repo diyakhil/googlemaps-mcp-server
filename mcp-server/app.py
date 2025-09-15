@@ -2,12 +2,29 @@ import streamlit as st
 import httpx
 from audio_recorder_streamlit import audio_recorder
 import io
-from text_to_speech import speak_text 
+from text_to_speech import speak_text
+from streamlit_geolocation import streamlit_geolocation
 
 st.set_page_config(page_title="Driver Assistant Chat", layout="centered")
 st.title("Driver Assistant Chat")
 
 st.markdown("Record audio directly or upload an audio file to get a smart response from the assistant.")
+
+location = streamlit_geolocation()
+
+if location and "latitude" in location and "longitude" in location:
+    if location["latitude"] is not None and location["longitude"] is not None:
+        headers = {
+            "X-User-Lat": str(location["latitude"]),
+            "X-User-Lon": str(location["longitude"]),
+        }
+        st.success(f"📍 Location detected: {location['latitude']:.4f}, {location['longitude']:.4f}")
+    else:
+        headers = {}
+        st.warning("⚠️ Location not available. Please enable location access in your browser.")
+else:
+    headers = {}
+    st.warning("⚠️ Waiting for location data...")
 
 tab1, tab2 = st.tabs(["Record Audio", "Upload File"])
 
@@ -27,21 +44,27 @@ with tab1:
         if st.button("Send Recording", key="send_recording"):
             with st.spinner("Sending to assistant..."):
                 try:
-                    # Create a file-like object from the audio bytes
                     audio_file = io.BytesIO(audio_bytes)
                     files = {"audio": ("recording.wav", audio_file, "audio/wav")}
-                    
-                    response = httpx.post("http://app:8000/transcribe-audio", files=files, timeout=60.0)
+
+                    st.write("DEBUG - Making request with headers:", headers)
+
+                    response = httpx.post("http://app:8000/transcribe-audio", files=files, headers=headers, timeout=60.0)
+
+                    st.write("DEBUG - Response status:", response.status_code)  # Debug line
+                    st.write("DEBUG - Response text:", response.text)  # Debug lin
+
                     if response.status_code == 200:
                         st.success("Assistant says:")
                         st.markdown(f"> {response.text}")
 
-                        # Convert response text to speech
                         speak_text(response.text)
                     else:
                         st.error(f"Server returned an error: {response.text}")
                 except Exception as e:
                     st.error(f"Failed to contact server: {e}")
+                    st.error(f"Failed to contact server: {e}")
+                    st.write("DEBUG - Exception details:", str(e)) 
 
 with tab2:
     st.markdown("### Upload an audio file")
@@ -51,7 +74,7 @@ with tab2:
         with st.spinner("Sending to assistant..."):
             try:
                 files = {"audio": (audio_file.name, audio_file, audio_file.type)}
-                response = httpx.post("http://app:8000/transcribe-audio", files=files, timeout=60.0)
+                response = httpx.post("http://app:8000/transcribe-audio", files=files, headers=headers, timeout=60.0)
                 if response.status_code == 200:
                     st.success("Assistant says:")
                     st.markdown(f"> {response.text}")
