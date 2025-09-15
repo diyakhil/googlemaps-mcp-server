@@ -12,3 +12,5 @@ googlemaps
 streamlit
 httpx
 audio-recorder-streamlit
+gtts 
+beautifulsoup4
