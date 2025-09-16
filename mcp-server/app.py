@@ -12,19 +12,10 @@ st.markdown("Record audio directly or upload an audio file to get a smart respon
 
 location = streamlit_geolocation()
 
-if location and "latitude" in location and "longitude" in location:
-    if location["latitude"] is not None and location["longitude"] is not None:
-        headers = {
-            "X-User-Lat": str(location["latitude"]),
-            "X-User-Lon": str(location["longitude"]),
-        }
-        st.success(f"📍 Location detected: {location['latitude']:.4f}, {location['longitude']:.4f}")
-    else:
-        headers = {}
-        st.warning("⚠️ Location not available. Please enable location access in your browser.")
-else:
-    headers = {}
-    st.warning("⚠️ Waiting for location data...")
+headers = {
+    "X-User-Lat": str(location["latitude"]),
+    "X-User-Lon": str(location["longitude"]),
+}
 
 tab1, tab2 = st.tabs(["Record Audio", "Upload File"])
 
@@ -47,13 +38,8 @@ with tab1:
                     audio_file = io.BytesIO(audio_bytes)
                     files = {"audio": ("recording.wav", audio_file, "audio/wav")}
 
-                    st.write("DEBUG - Making request with headers:", headers)
-
                     response = httpx.post("http://app:8000/transcribe-audio", files=files, headers=headers, timeout=60.0)
-
-                    st.write("DEBUG - Response status:", response.status_code)  # Debug line
-                    st.write("DEBUG - Response text:", response.text)  # Debug lin
-
+     
                     if response.status_code == 200:
                         st.success("Assistant says:")
                         st.markdown(f"> {response.text}")
@@ -74,7 +60,7 @@ with tab2:
         with st.spinner("Sending to assistant..."):
             try:
                 files = {"audio": (audio_file.name, audio_file, audio_file.type)}
-                response = httpx.post("http://app:8000/transcribe-audio", files=files, headers=headers, timeout=60.0)
+                response = httpx.post("http://app:8000/transcribe-audio", files=files, headers=headers)
                 if response.status_code == 200:
                     st.success("Assistant says:")
                     st.markdown(f"> {response.text}")

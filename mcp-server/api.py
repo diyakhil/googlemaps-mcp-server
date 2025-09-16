@@ -19,13 +19,6 @@ OPENAI_TRANSCRIPTION_URL = "https://api.openai.com/v1/audio/transcriptions"
 async def transcribe_audio(audio: UploadFile = File(...), latitude: Optional[str] = Header(None, alias="X-User-Lat"),
     longitude: Optional[str] = Header(None, alias="X-User-Lon")):
 
-    print("=== DEBUG INFO ===")
-    print("Received latitude:", latitude)
-    print("Received longitude:", longitude)
-    print("Audio filename:", audio.filename)
-    print("Audio content type:", audio.content_type)
-    print("==================")
-
     if latitude and longitude:
         location_info = f" (Current location: lat={latitude}, lon={longitude})"
     else:
@@ -86,16 +79,19 @@ async def transcribe_audio(audio: UploadFile = File(...), latitude: Optional[str
         
         transcription_data = response.json()
         transcribed_text = transcription_data.get("text", "")
+        
+        # Add location info
+        transcribed_text = transcribed_text + " my current location is latitude=" + str(latitude) + " and longitude=" + str(longitude)
 
-        #transcribed_text += f" (Current location: lat={latitude}, lon={longitude})"
-
-        print("Transcribed text:", transcribed_text)
-
-        agent_response = await process_chat_message(transcribed_text, "session_id")
-
-        print("Agent response:", agent_response['response'])
-
-        return agent_response["response"]
+        try:
+            agent_response = await process_chat_message(transcribed_text, "session_id")
+            
+            return agent_response["response"]
+            
+        except Exception as e:
+            import traceback
+            traceback.print_exc()
+            raise HTTPException(status_code=500, detail=f"Agent error: {str(e)}")
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Unexpected error: {str(e)}")
@@ -103,9 +99,3 @@ async def transcribe_audio(audio: UploadFile = File(...), latitude: Optional[str
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
-
-
-#test with curl using this command curl 
-# -X POST "http://localhost:8000/transcribe-audio" \
-  #-H "Content-Type: multipart/form-data" \
-  #-F "audio=@/Users/diyakhilnani/Documents/googlemaps-mcp-server/driver_assistant_test.m4a"

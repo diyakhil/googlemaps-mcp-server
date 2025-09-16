@@ -74,11 +74,13 @@ class ChatAgent:
         key = self.get_memory_key(session_id)
         self.redis_client.delete(key)
 
-    async def chat(self, prompt: str, session_id: str) -> Dict:
+    async def chat(self, prompt: str, session_id: str) -> Dict:     
         max_history_length = 10
         memory_ttl_seconds = 3600
 
-        await self._initialize_agent()
+        if not self._initialized:
+            await self._initialize_agent()
+            self._initialized = True
 
         messages = self.get_conversation_history(session_id)
 
@@ -88,9 +90,23 @@ class ChatAgent:
             messages = messages[-(max_history_length * 2):]
 
         try:
-            # Get response from agent
+            for i, msg in enumerate(messages):
+                print(f"Message {i}: {msg['role']} - '{msg['content'][:100]}...'")
+            
             response = await self.agent.ainvoke({"messages": messages})
-            agent_reply = response["messages"][-1].content
+
+            if "messages" in response:
+                if response["messages"]:
+                    last_message = response["messages"][-1]
+                    if hasattr(last_message, 'content'):
+                        agent_reply = last_message.content
+                    else:
+                        agent_reply = str(last_message)
+                        agent_reply = str(last_message)
+                else:
+                    agent_reply = "Error: No response from agent"
+            else:
+                agent_reply = "Error: Invalid response format"
             
             # Add assistant response to messages
             messages.append({"role": "assistant", "content": agent_reply})
@@ -106,6 +122,8 @@ class ChatAgent:
             }
         
         except Exception as e:
+            import traceback
+            traceback.print_exc()
             return {
                 "response": f"Error processing request: {str(e)}",
                 "session_id": session_id,
