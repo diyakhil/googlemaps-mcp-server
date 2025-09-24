@@ -4,6 +4,35 @@ from audio_recorder_streamlit import audio_recorder
 import io
 from text_to_speech import speak_text
 from streamlit_geolocation import streamlit_geolocation
+import re 
+from html import unescape
+
+def clean_chat_output(text):
+    """
+    Cleans and formats chat agent output for Streamlit-safe Markdown rendering.
+
+    Handles:
+    - Escape characters like \\n, \n, \t
+    - Markdown (**bold**, *italic*, > quote)
+    - Simple HTML tags like <b>, <br>
+    - Unescaped HTML entities (&amp;, &nbsp;, etc.)
+    """
+
+    # Unescape HTML entities like &amp;, &nbsp;, etc.
+    text = unescape(text)
+
+    # Replace backslash-escaped newlines (\n, \\n) with Markdown line breaks
+    text = text.replace('\\n', '\n')  # double-escaped
+    text = text.replace('\n', '  \n')  # Markdown line break
+
+    # Convert simple HTML tags to Markdown
+    text = re.sub(r'<\s*(b|strong)\s*>', '**', text)
+    text = re.sub(r'<\s*/\s*(b|strong)\s*>', '**', text)
+    text = re.sub(r'<\s*(i|em)\s*>', '*', text)
+    text = re.sub(r'<\s*/\s*(i|em)\s*>', '*', text)
+    text = re.sub(r'<\s*br\s*/?>', '  \n', text)
+
+    return text 
 
 st.set_page_config(page_title="Driver Assistant Chat", layout="centered")
 st.title("Driver Assistant Chat")
@@ -42,7 +71,7 @@ with tab1:
      
                     if response.status_code == 200:
                         st.success("Assistant says:")
-                        st.markdown(f"> {response.text}")
+                        st.markdown(f"> {clean_chat_output(response.text)}")
 
                         speak_text(response.text)
                     else:
@@ -63,7 +92,7 @@ with tab2:
                 response = httpx.post("http://app:8000/transcribe-audio", files=files, headers=headers)
                 if response.status_code == 200:
                     st.success("Assistant says:")
-                    st.markdown(f"> {response.text}")
+                    st.markdown(f"> {clean_chat_output(response.text)}")
                     
                      # Convert response text to speech
                     speak_text(response.text)
