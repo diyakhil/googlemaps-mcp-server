@@ -83,81 +83,24 @@ class ChatAgent:
             self._initialized = True
 
         messages = self.get_conversation_history(session_id)
-
         messages.append({"role": "user", "content": prompt})
 
-        if len(messages) > max_history_length * 2:  # *2 because each exchange has user + assistant
+        if len(messages) > max_history_length * 2:
             messages = messages[-(max_history_length * 2):]
 
         try:
-            for i, msg in enumerate(messages):
-                print(f"Message {i}: {msg['role']} - '{msg['content'][:100]}...'")
-            
+            # Agent handles the entire ReAct loop internally
             response = await self.agent.ainvoke({"messages": messages})
 
-            agent_reply = None
-            max_iterations = 5
-            iteration = 0
-
-            while agent_reply is None and iteration < max_iterations:
-                iteration += 1
-            
-                if "messages" not in response or not response["messages"]:
-                    agent_reply = "Error: No response from agent"
-                    break
-
+            # Extract the final response
+            if "messages" in response and response["messages"]:
                 last_message = response["messages"][-1]
-                
-                # Check for regular content first
-                if hasattr(last_message, 'content') and last_message.content and last_message.content.strip():
-                    agent_reply = last_message.content
-                    break
+                agent_reply = last_message.content
+            else:
+                agent_reply = "Error: No response from agent"
             
-                # Check for reasoning content if regular content is empty/missing
-                elif hasattr(last_message, 'additional_kwargs') and 'reasoning_content' in last_message.additional_kwargs:
-                    reasoning_content = last_message.additional_kwargs['reasoning_content']
-                    if reasoning_content and reasoning_content.strip():
-                        # The reasoning was cut off, but we can still provide a helpful response
-                        agent_reply = "Please increase your token limit and try again."
-                        # You might want to retry with higher token limit or break down the request
-                        break
-            
-                # Handle tool calls
-                elif hasattr(last_message, 'tool_calls') and last_message.tool_calls:
-                    for tool_call in last_message.tool_calls:
-                        tool_name = tool_call.get("name")
-                        tool_args = tool_call.get("args", {})
-
-                        print(f"Calling tool: {tool_name} with args: {tool_args}")
-                        try:
-                            tool_result = await self.mcp_client.call_tool(tool_name, tool_args)
-                            print(f"Tool result: {tool_result}")
-                        except Exception as e:
-                            tool_result = f"Error calling {tool_name}: {str(e)}"
-                            print(f"Tool error: {tool_result}")
-
-                        # Append tool result back to messages
-                        messages.append({
-                            "role": "tool", 
-                            "name": tool_name,
-                            "content": str(tool_result)
-                        })
-
-                    # Re-invoke the agent with updated conversation
-                    response = await self.agent.ainvoke({"messages": messages})
-                    continue
-            
-                else:
-                    agent_reply = "I apologize, but I'm having trouble generating a complete response. Could you please try rephrasing your request?"
-                    break
-            
-            if agent_reply is None:
-                agent_reply = "Error: Maximum iterations reached without getting a proper response"
-            
-            # Add assistant response to messages
+            # Save conversation history
             messages.append({"role": "assistant", "content": agent_reply})
-            
-            # Save updated conversation history
             self.save_conversation_history(session_id, messages, memory_ttl_seconds)
             
             return {
@@ -168,8 +111,6 @@ class ChatAgent:
             }
         
         except Exception as e:
-            import traceback
-            traceback.print_exc()
             return {
                 "response": f"Error processing request: {str(e)}",
                 "session_id": session_id,
