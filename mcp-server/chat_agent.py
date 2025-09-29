@@ -118,7 +118,7 @@ class ChatAgent:
                     reasoning_content = last_message.additional_kwargs['reasoning_content']
                     if reasoning_content and reasoning_content.strip():
                         # The reasoning was cut off, but we can still provide a helpful response
-                        agent_reply = "I'm processing your request for directions to Squires Student Center. Let me get that information for you."
+                        agent_reply = "Please increase your token limit and try again."
                         # You might want to retry with higher token limit or break down the request
                         break
             
