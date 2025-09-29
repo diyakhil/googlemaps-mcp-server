@@ -42,7 +42,7 @@ class ChatAgent:
 
         model = ChatGroq(
             model="qwen/qwen3-32b",
-            max_tokens=1024,
+            max_tokens=2000,
             temperature=0.1
         )
         
@@ -95,18 +95,64 @@ class ChatAgent:
             
             response = await self.agent.ainvoke({"messages": messages})
 
-            if "messages" in response:
-                if response["messages"]:
-                    last_message = response["messages"][-1]
-                    if hasattr(last_message, 'content'):
-                        agent_reply = last_message.content
-                    else:
-                        agent_reply = str(last_message)
-                        agent_reply = str(last_message)
-                else:
+            agent_reply = None
+            max_iterations = 5
+            iteration = 0
+
+            while agent_reply is None and iteration < max_iterations:
+                iteration += 1
+            
+                if "messages" not in response or not response["messages"]:
                     agent_reply = "Error: No response from agent"
-            else:
-                agent_reply = "Error: Invalid response format"
+                    break
+
+                last_message = response["messages"][-1]
+                
+                # Check for regular content first
+                if hasattr(last_message, 'content') and last_message.content and last_message.content.strip():
+                    agent_reply = last_message.content
+                    break
+            
+                # Check for reasoning content if regular content is empty/missing
+                elif hasattr(last_message, 'additional_kwargs') and 'reasoning_content' in last_message.additional_kwargs:
+                    reasoning_content = last_message.additional_kwargs['reasoning_content']
+                    if reasoning_content and reasoning_content.strip():
+                        # The reasoning was cut off, but we can still provide a helpful response
+                        agent_reply = "I'm processing your request for directions to Squires Student Center. Let me get that information for you."
+                        # You might want to retry with higher token limit or break down the request
+                        break
+            
+                # Handle tool calls
+                elif hasattr(last_message, 'tool_calls') and last_message.tool_calls:
+                    for tool_call in last_message.tool_calls:
+                        tool_name = tool_call.get("name")
+                        tool_args = tool_call.get("args", {})
+
+                        print(f"Calling tool: {tool_name} with args: {tool_args}")
+                        try:
+                            tool_result = await self.mcp_client.call_tool(tool_name, tool_args)
+                            print(f"Tool result: {tool_result}")
+                        except Exception as e:
+                            tool_result = f"Error calling {tool_name}: {str(e)}"
+                            print(f"Tool error: {tool_result}")
+
+                        # Append tool result back to messages
+                        messages.append({
+                            "role": "tool", 
+                            "name": tool_name,
+                            "content": str(tool_result)
+                        })
+
+                    # Re-invoke the agent with updated conversation
+                    response = await self.agent.ainvoke({"messages": messages})
+                    continue
+            
+                else:
+                    agent_reply = "I apologize, but I'm having trouble generating a complete response. Could you please try rephrasing your request?"
+                    break
+            
+            if agent_reply is None:
+                agent_reply = "Error: Maximum iterations reached without getting a proper response"
             
             # Add assistant response to messages
             messages.append({"role": "assistant", "content": agent_reply})

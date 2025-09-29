@@ -67,7 +67,7 @@ with tab1:
                     audio_file = io.BytesIO(audio_bytes)
                     files = {"audio": ("recording.wav", audio_file, "audio/wav")}
 
-                    response = httpx.post("http://app:8000/transcribe-audio", files=files, headers=headers, timeout=60.0)
+                    response = httpx.post("http://app:8000/transcribe-audio", files=files, headers=headers, timeout=300.0)
      
                     if response.status_code == 200:
                         st.success("Assistant says:")

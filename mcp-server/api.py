@@ -19,6 +19,8 @@ OPENAI_TRANSCRIPTION_URL = "https://api.openai.com/v1/audio/transcriptions"
 async def transcribe_audio(audio: UploadFile = File(...), latitude: Optional[str] = Header(None, alias="X-User-Lat"),
     longitude: Optional[str] = Header(None, alias="X-User-Lon")):
 
+    print(f"Received audio file: {audio.filename}, content type: {audio.content_type}")
+
     if latitude and longitude:
         location_info = f" (Current location: lat={latitude}, lon={longitude})"
     else:
