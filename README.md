@@ -8,8 +8,7 @@ responses to the driver using Google's text-to-speech (TTS).
 
 ## 🧠 Key Features
 
-- 🎙️ **Voice Input Support:** Record or upload voice snippets for processing.
-- 📂 **File Uploads:** Supports direct file input (audio files).
+- 🎙️ **Voice Input Support:** Record voice snippets for processing.
 - 🧾 **Speech Recognition:** Uses [OpenAI Whisper](https://github.com/openai/whisper) for accurate voice transcription.
 - 🧠 **Custom MCP Server:** Handles all query routing with Google APIs integration and web search fallback.
 - 🌐 **Google API Integration:** Fetches rich data using Google APIs (Search, Maps, etc.).
