@@ -11,7 +11,7 @@ fastmcp
 googlemaps
 streamlit
 httpx
-audio-recorder-streamlit==0.0.10
+streamlit-audiorecorder
 gtts 
 beautifulsoup4
-streamlit_geolocation
+streamlit-geolocation

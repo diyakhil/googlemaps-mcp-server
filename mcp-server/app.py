@@ -1,6 +1,6 @@
 import streamlit as st
 import httpx
-from audio_recorder_streamlit import audio_recorder
+from audiorecorder import audiorecorder
 import io
 from text_to_speech import speak_text
 from streamlit_geolocation import streamlit_geolocation
@@ -47,16 +47,20 @@ headers = {
 }
 
 st.markdown("### Record your message")
-audio_bytes = audio_recorder(
-    text="Click to record",
-    recording_color="#e87070",
-    neutral_color="#6aa36f",
-    icon_name="microphone",
-    icon_size="2x",
+audio = audiorecorder(
+    start_prompt="Start recording",
+    stop_prompt="Stop recording",
+    pause_prompt="",
+    start_style={},
+    pause_style={},
+    stop_style={},
+    show_visualizer=True,
+    key=None
 )
 
-if audio_bytes:
-    st.audio(audio_bytes, format="audio/wav")
+if len(audio) > 0:
+    audio_bytes = audio.export().read()
+    st.audio(audio_bytes)
     
     if st.button("Send Recording", key="send_recording"):
         with st.spinner("Sending to assistant..."):
