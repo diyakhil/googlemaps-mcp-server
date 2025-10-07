@@ -1,6 +1,9 @@
 import streamlit as st
 import httpx
-from audiorecorder import audiorecorder
+try:
+    from streamlit_audiorecorder import audiorecorder
+except ImportError:
+    from audiorecorder import audiorecorder
 import io
 from text_to_speech import speak_text
 from streamlit_geolocation import streamlit_geolocation
