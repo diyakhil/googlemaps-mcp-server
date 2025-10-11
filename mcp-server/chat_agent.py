@@ -1,6 +1,7 @@
 from typing import Dict, List
 from langchain_mcp_adapters.client import MultiServerMCPClient
 from langgraph.prebuilt import create_react_agent
+from langchain_core.prompts import ChatPromptTemplate
 from langchain_groq import ChatGroq
 import os
 import json
@@ -45,8 +46,17 @@ class ChatAgent:
             max_tokens=2000,
             temperature=0.1
         )
-        
-        self.agent = create_react_agent(model, tools)
+
+        system_prompt = ChatPromptTemplate.from_messages([
+            ("system", """You are a concise assistant. Follow these rules:
+                1. Use tools IMMEDIATELY when they match the user's request
+                2. Be as brief as possible in responses
+                3. Skip unnecessary explanations
+                4. Call tools directly without asking for permission"""),
+            ("placeholder", "{messages}")
+        ])
+
+        self.agent = create_react_agent(model, tools, prompt=system_prompt)
         print("Agent initialized successfully")
     
     def get_memory_key(self, session_id: str) -> str:
