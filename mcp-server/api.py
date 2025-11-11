@@ -4,6 +4,8 @@ import os
 from pathlib import Path
 from chat_agent import process_chat_message
 from typing import Optional
+from fastapi import Request
+
 
 app = FastAPI()
 
@@ -97,6 +99,52 @@ async def transcribe_audio(audio: UploadFile = File(...), latitude: Optional[str
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Unexpected error: {str(e)}")
+
+
+class ChatInput:
+    def __init__(self, text: str, session_id: Optional[str] = "session_id"):
+        self.text = text
+        self.session_id = session_id
+
+
+@app.post("/chat")
+async def chat_endpoint(
+    request: Request,
+    latitude: Optional[str] = Header(None, alias="X-User-Lat"),
+    longitude: Optional[str] = Header(None, alias="X-User-Lon")
+):
+    """
+    Handles plain text chat messages and sends them to the chat agent.
+    """
+    try:
+        # Parse JSON body manually
+        body = await request.json()
+        text = body.get("text", "").strip()
+        session_id = body.get("session_id", "session_id")
+
+        if not text:
+            raise HTTPException(status_code=400, detail="Text message cannot be empty")
+
+        # Create a custom ChatInput object
+        chat_input = ChatInput(text=text, session_id=session_id)
+
+        # Add optional location context
+        if latitude and longitude:
+            chat_input.text += f" (User location: lat={latitude}, lon={longitude})"
+
+        # Send to your chat agent
+        agent_response = await process_chat_message(chat_input.text, chat_input.session_id)
+
+        return {
+            "response": agent_response.get("response", ""),
+            "session_id": chat_input.session_id
+        }
+
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=f"Agent error: {str(e)}")
+
     
 if __name__ == "__main__":
     import uvicorn
