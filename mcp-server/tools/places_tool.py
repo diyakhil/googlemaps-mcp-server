@@ -24,7 +24,7 @@ def get_nearby_places(latitude: float, longitude: float, type:str = None) -> str
                     "latitude": latitude,
                     "longitude": longitude
                 },
-                "radius": 1000
+                "radius": 10000
             }
         },
         "maxResultCount": 3

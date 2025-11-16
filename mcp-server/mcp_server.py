@@ -3,6 +3,7 @@ from fastmcp import FastMCP
 from tools.places_tool import get_nearby_places
 from tools.maps_geocode_tool import maps_geocode, maps_reverse_geocode, maps_place, maps_get_directions, maps_travel_time
 from tools.websearch import web_search
+from tools.nearby_places_geoapify import get_places_nearby_name
 
 # Create MCP server
 mcp = FastMCP("DriverAssistant")
@@ -37,6 +38,11 @@ def maps_get_directions_wrapper(origin: str, destination: str) -> dict:
 def maps_travel_time_wrapper(origin: str, destination: str) -> dict:
     """ Returns travel time and distance from origin to destination """
     return maps_travel_time(origin, destination)
+
+@mcp.tool()
+def get_places_nearby_name_wrapper(latitude: float, longitude: float, locationName: str, category: str) -> str:
+    """ Returns nearby places of a specific brand given latitude, longitude, specific location name. Use this for specific brand names. For category choose between [catering, commercial, entertainment] based on the question"""
+    return get_places_nearby_name(latitude, longitude, locationName, category)
 
 # @mcp.tool()
 # def get_place_photo(latitude: float, longitude: float) -> dict: 
